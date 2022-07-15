@@ -9,9 +9,9 @@ no translation to version 5.  The special entries #NO_IDENTD
 and #BAD_ID are obsolete.  This prevents a true 1-to-1 
 translation.
 
-[socks4to5.pl](https://github.com/Xcod3bughunt3r/socks4&5/blob/master/socks4to5.pl)
+[socks4to5.pl](https://github.com/Xcod3bughunt3r/socks4to5/blob/master/socks4to5.pl)
 
-[socks4to5.1](https://github.com/Xcod3bughunt3r/socks4&5/blob/master/socks4to5.1)
+[socks4to5.1](https://github.com/Xcod3bughunt3r/socks4to5/blob/master/socks4to5.1)
 
 
 
