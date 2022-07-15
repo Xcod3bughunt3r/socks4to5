@@ -1,0 +1,42 @@
+.ll 6i
+.pl 10.5i
+.\"	@(#)sockd4to5.pl 1.0 09/14/95
+.\"
+.lt 6.0i
+.TH sockd4to5.pl  1 "14 September 1995"
+.AT 3
+.SH NAME
+sockd4to5.pl \-  convert sockd V4 config files to V5 format
+.SH SYNOPSIS
+.B sockd4to5.pl [\-t] \fIsockd.conf\fP [\fIsockd.route\fP] 
+.SH DESCRIPTION
+Takes a sockd version 4 configuration file and optionally a sockd
+version 4 routing table file (for multi-homed hosts) and prints
+the version 5 configuration file to stdout.  The output can be
+used as a template for the socks version 5 server configuration
+file (/etc/socks5.conf).
+.SH CAVEATS
+Certains parameters in the version 4 configuration file have
+no translation to version 5. The special entries \fI#NO_IDENTD\fP 
+and \fI#BAD_ID\fP are obsolete.  The authorization section is now 
+used.
+.sp1
+Shell commands [ : \fIshell cmd\fP ] are no longer supported. This
+also implies the "%" variables are no longer supported as well.
+.sp1
+For these situations, the conversion script will print warning
+messages (if not in "terse" mode).  The configuration file produced 
+will have to be manually editted for the desired functionality.
+.SH OPTIONS
+.TP
+.B \-t
+terse.  Only prints the converted lines and omits the comments.
+.SH EXAMPLE
+sockd4_to_5.pl sockd.conf sockd.route
+.SH SEE ALSO
+sockd.conf(5), socks5.conf(5), libsocks5.conf(5)
+.SH AUTHOR
+Steven Lass (steve@syl.dl.nec.com)
+.sp 0
+send comments to \fIsocks5-comments@syl.dl.nec.com\fP
+

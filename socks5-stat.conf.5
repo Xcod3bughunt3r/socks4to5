@@ -1,0 +1,469 @@
+.\" -*- nroff -*-
+.\" Like TP, but if specified indent is more than half
+.\" the current line-length - indent, use the default indent.
+.de Tp
+.ie \\n(.$=0:((0\\$1)*2u>(\\n(.lu-\\n(.iu)) .TP
+.el .TP "\\$1"
+..
+.TH SOCKS5-STAT.CONF 5 "July 20, 1998"
+.SH NAME
+socks5-stat.conf \- configuration file for socks5-stat
+.SH SYNOPSIS
+.B /etc/socks5-stat.conf
+.SH DESCRIPTION
+The
+.B socks5-stat.conf
+configuration file contains information used by 
+.B socks5-stat
+to generate detailed connection summary information.  This file can be
+used to select specific user names, host names, or services for which
+to give detailed usage summaries.  It can be used to provide
+information for the users, hosts, or services utilizing the highest
+amount of firewall resources based on number of connections, amount of
+data transferred, and total connection time.  Message reporting for
+failed connections, failed authentications, and deamon restarts can 
+be tailored in the configuration file as well.  An email address or 
+list of email addresses to which to send the summary can be specified 
+in this file.
+.LP
+Each line of the configuration file should be in the format
+.LP
+.RS
+.I keyword\ \ \ argument_list
+.RE
+.LP
+where
+.I keyword
+is one of the valid keywords and
+.I argument_list
+is a comma and/or whitespace list of valid arguments.  Blank lines and
+comment lines that begin with the `#' character are ignored.
+Furthermore, comments can be included on any line by preceeding the
+comment with the `#' character.
+.SH KEYWORDS
+There are eleven valid keywords that can appear in the configuration
+file.  Each keyword can appear multiple times within the configuration
+file although the
+.I failed,
+.I authfail,
+.I reversemap,
+.I showprogress,
+and
+.I restart
+keywords would not be useful to appear more than once.  Conversely,
+any of the keywords may be left out of the configuration file. Each
+keyword must have an argument list following on the line.  The
+argument list can have multiple arguments separated by whitespace
+and/or commas.  The
+.I detail,
+.I failed,
+.I authfail,
+.I reversemap,
+.I showprogress,
+and
+.I restart
+keywords may only have a single argument following them.
+.TP
+.BI user \ arg1[,arg2[,arg3[,...]]]
+Use the
+.B user
+keyword to specify a list of specific users you want to generate usage
+summaries for.  You can also specify to summarize the users with the
+highest amount of usage based on number of connections, number of
+bytes transfered, and amount of connection time.  The argument list can
+be any combination of the following:
+.RS
+.TP 12
+.B username
+A user name by itself will create a summary based on the statistics of
+all successful connections by
+.I username
+at any network address.  Be careful with this general user name style
+argument since both 
+.I bill@my.company.com
+and
+.I bill@some.school.edu
+would match an argument 
+.I bill,
+therefore adding the statistics together as one general user
+.I bill.
+.TP 12
+.B username@abc.abc.abc.abc
+This type of argument will summarize successful connection information
+for log entries that exactly match the
+.I username
+at
+.I abc.abc.abc.abc.
+This style of argument is preferred over a simple
+.I username
+alone since it prevents the ambiguous wildcarding.
+.TP 12
+.BI t= \ num
+This will give a summary of the top
+.I num
+users based on number of connections, amount of data transferred, and
+amount of connection time.
+.I num
+must be a positive integer.
+.TP 12
+.B \-
+A dash indicates to generate summaries of all unique users found in
+the log files.
+.RE
+.TP
+.BI detail \ arg
+This keyword enables/disables the generation of a detailed user report.  
+The traffic patterns of each user to each destination host is reported.
+.I arg
+must be one of the following:
+.RS
+.TP 12
+.B all
+This will enable the report.
+.TP 12
+.B none
+This will disable the report.
+.RE
+.TP
+.BI source \ arg1[,arg2[,arg3[,...]]]
+Use the
+.B source
+keyword to specify a list of specific source hosts or domains to
+generate usage summaries for.  You can also select to summarize the
+source hosts with the highest amount of usage based on number of
+connections, amount of data transferred, and amount of connection
+time.  The argument list can be any of the following:
+.RS
+.TP 12
+.B host.domain.name
+All successful connections from a source address that exactly matches
+.I host.domain.name
+will be summarized.
+.TP 12
+.B 123.123.123.123
+Like
+.I host.domain.name
+except that it matches unresolved source IP addresses.
+.TP 12
+.B .domain.name
+This style of source argument would summarize successful connections
+from a source address that matches
+.I *.domain.name.
+This style of argument MUST begin with a period.
+.TP 12
+.B 123.123.[123.]
+Like
+.I .domain.name
+except that it matches unresolved source network or subnet numbers.
+This style of argument MUST end with a period.
+.TP 12
+.BI t= \ num
+This will give a summary of the top 
+.I num
+source addresses based on number of connections, amount of data
+transferred, and amount of connection time.
+.I num
+must be a positive integer.
+.TP 12
+.B -
+A dash indicates to generate summaries of all unique source addresses
+found in the log files.
+.RE
+.TP
+.BI dest \ arg1[,arg2[,arg3[,...]]]
+Use the
+.B dest
+keyword to specify a list of specific destination hosts or domains to
+generate usage summaries for.  You can also select to summarize the
+destination hosts with the highest amount of usage based on number of
+connections, amount of data transferred, and amount of connection
+time.  The argument list can be any combination of the following:
+.RS
+.TP 12
+.B host.domain.name
+All successful connections to a destination address that exactly matches
+.I host.domain.name
+will be summarized.
+.TP 12
+.B 123.123.123.123
+Like
+.I host.domain.name
+except that it matches unresolved destination IP addresses.
+.TP 12
+.B .domain.name
+This style of destination argument would summarize successful connections
+to a destination address that matches
+.I *.domain.name.
+This style of argument MUST begin with a period.
+.TP 12
+.B 123.123.[123.]
+Like
+.I .domain.name
+except that it matches unresolved destination network or subnet
+numbers.  This style of argument MUST end with a period.
+.TP 12
+.BI t= \ num
+This will give a summary of the top 
+.I num
+destination addresses based on number of connections, amount of data
+transferred, and amount of connection time.
+.I num
+must be a positive integer.
+.TP 12
+.B -
+A dash indicates to generate summaries of all unique destination
+addresses found in the log files.
+.RE
+.TP
+.BI port \ arg1[,arg2[,arg3[,...]]]
+Use the
+.B port
+keyword to specify a list of destination ports or services to generate
+usage summaries for.  You can also select to summarize the destination
+ports or services with the highest amount of usage based on number of
+connections, amount of data transferred, and amount of connection
+time.  The argument list can be any combination of the following:
+.RS
+.TP 12
+.B portnumber
+This will summarize all connections to a destination
+.I portnumber.
+Note that
+.B socks5-stat
+does not attempt to resolve a port number to a service name and this
+type of port argument will only match log entries that appear with
+that port number (i.e.
+.I 25
+will not match
+.I smtp).
+.TP 12
+.I service
+This will summarize all connection to a destination
+.B service.
+Note that
+.B socks5-stat
+does not attempt to resolve a service name to a port number and this
+type of port argument will only match log entries that appear with
+that service name (i.e.
+.I smtp
+will not match
+.I 25).
+.TP 12
+.BI t= \ num
+This will give a summary of the top
+.I num
+destination ports and services based on number of connections, amount
+of data transferred, and amount of connection time.
+.I num
+must be a positive integer.
+.TP 12
+.B \-
+A dash indicates to generate summaries of all unique destination ports
+and services.
+.RE
+.TP
+.BI failed \ arg
+This keyword tells how much information to report on failed
+connections.
+.I arg
+must be one of the following:
+.RS
+.TP 12
+.B all
+This will report the log message generated when a connection failed
+along with information about the user name, source and destination
+addresses, and port or service for each failed connection.  This is
+the default action if the
+.B failed
+keyword does not appear in the configuration file.
+.TP 12
+.B minimum
+This will report only the log message generated when each connection
+failed.
+.TP 12
+.B none
+No reporting about failed connections will be done.
+.RE
+.TP
+.BI authfail \ arg
+This keyword tells how much information to report on failed
+authentications.  Authentication failures are caused by connections
+to the SOCKS server by non-SOCKS clients, client protocol
+errors, and when the client cannot provide the proper authentication.
+.I arg
+must be one of the following:
+.RS
+.TP 12
+.B all
+Report each client that failed to authenticate and the
+number of times it failed.  The total number of authentcation 
+failures is also reported.  This is the default action.
+.TP 12
+.B minimum
+Report only the total number of authentcation failures.
+.TP 12
+.B none
+No report of failed authentications.
+.RE
+.TP
+.BI reversemap \ arg
+This keyword tells whether IP addresses and port numbers in 
+the log file should be mapped to hostnames and service names.
+Reverse mapping can be a very time consuming step.  If a mapping 
+does not exist, the script waits for the underlying system call 
+to timeout.
+.I arg
+must be one of the following:
+.RS
+.TP 12
+.B all
+This will attempt to map IP addresses to hostnames and ports to
+service names.
+.TP 12
+.B ip
+This will map IP addresses to hostnames.
+.TP 12
+.B service
+This will map port numbers to service names.
+.TP 12
+.B none
+No mapping.  This is the default action.
+.RE
+.TP
+.BI showprogress \ arg
+This keyword tells whether to report the progress of the script
+as it executes.  Reverse mapping IP addresses & processing the log
+files can be very time consuming.  The status is sent to stderr,
+so it can redirected seperately from the output.
+.I arg
+must be one of the following:
+.RS
+.TP 12
+.B all
+Report all status messages. This is the default action.
+.TP 12
+.B none
+No status reporting. 
+.RE
+.TP
+.BI restart \ arg
+This keyword tells whether or not messages about the
+.B socks5
+daemon starting or restarting should be reported.
+.I arg
+must be one of the following:
+.RS
+.TP 12
+.B none
+No reporting about restarting will be done.  This is the default
+action if the 
+.B restart
+keyword does not appear in the configuration file.
+.TP 12
+.B all
+Show all messages about restarting.
+.RE
+.TP
+.BI mailout \ addr1[,addr2[,addr3[,...]]]
+Use the keyword
+.B mailout
+to specify an email address or list of email addresses to send the
+output of the summary to.  If this keyword is not present, the summary
+is sent to standard output.
+.SH EXAMPLES
+The following line would generate summaries for the users
+.I george@*, 
+and the user
+.I carl@my.company.com
+as well as generating summaries on the top
+.I 10
+users:
+.LP
+.RS
+.nf
+user   george, carl@my.company.com, t=10
+.fi
+.RE
+.LP
+and would be equivalent to the following two lines:
+.LP
+.RS
+.nf
+user   george
+user   carl@my.company.com, t=10
+.fi
+.RE	
+.LP
+The following line would generate summaries for the source address
+.I my.company.com
+and all source addresses in the domain 
+.I x.company.com:
+.LP
+.RS
+.nf
+source   my.company.com, .x.company.com
+.fi
+.RE
+.LP
+The following line would generate summaries for all destination
+addresses in the domain
+.I bigschool.edu
+as well as generate summaries for every unique destination address:
+.LP
+.RS
+.nf
+dest   .bigschool.edu, -
+.fi
+.RE
+.LP
+The following three lines would print out the top
+.I 10
+destination ports, produce minimum error reporting, and show all
+daemon restart messages:
+.LP
+.RS
+.nf
+port     t=10
+failed   minimum
+restart  all
+.fi
+.RE
+.LP
+Following is a complete and functional configuration file:
+.LP
+.RS
+.nf
+#
+# Sample /etc/socks5-stat.conf
+#
+user      carl@my.company.com, t=5
+source    .company.com, t=5
+dest      t=10
+port      -
+
+failed    all                   # default but specify as example
+restart   all
+
+mailout   bob@company.com       # send the summary via email
+#
+# end of /etc/socks5-stat.conf
+.fi
+.RE
+.LP
+.SH "SEE ALSO"
+.I socks5-stat (1)
+.SH NOTES
+.LP
+UDP log information is limited so a UDP is only counted in the summary
+and does not contribute to the data transfer size or to connection
+time.
+.LP
+No checking is done to see if arguments are duplicated in the
+configuration file.  So if a specific user name is listed twice, it
+will show up in the summary twice.
+.LP
+All user names and host names specified in the configuration file are
+case independent.  However, all are converted to lower case for
+comparison and in the summary.
+.LP
+The reversemap of port numbers assume TCP services.

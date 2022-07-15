@@ -1,0 +1,199 @@
+.\" -*- nroff -*-
+.\" Like TP, but if specified indent is more than half
+.\" the current line-length - indent, use the default indent.
+.de Tp
+.ie \\n(.$=0:((0\\$1)*2u>(\\n(.lu-\\n(.iu)) .TP
+.el .TP "\\$1"
+..
+.TH SOCKS5-STAT 1 "July 20, 1998"
+.SH NAME
+socks5-stat \- summarize socks5 log files
+.SH SYNOPSIS
+.B socks5-stat
+[
+.BI \-f file1[,file2[,...]]
+]
+[
+.BI \-c [conffile]
+]
+[
+.BI \-m sendmail_path
+]
+[
+.BI \-s yymmdd
+]
+[
+.BI \-e yymmdd
+]
+[
+.BI \-d numdays
+]
+[
+.B -v
+]
+.SH DESCRIPTION
+.B socks5-stat
+generates a summary from the log messages created by
+.BR socks5
+through the
+.BR syslog
+facility.  The summary will give the number of input lines processed,
+the number of successful connections, the number of bytes transferred,
+the total connection time, and the number of failed connections along
+with the message logged, host, and user information for each of the
+failed connections.  Additionally,
+.B socks5-stat
+uses a configuration file,
+.B /etc/socks5-stat.conf,
+to provide additional detailed connection information summarization.
+.LP
+By default,
+.B socks5-stat
+will use the file 
+.B /var/adm/messages
+and its predecessors (
+.B messages.0,
+.B messages.1,
+.B ... 
+) as input.  Alternate files can be specified by using the
+.B -f
+option.  The entire file or set of files is summarized from beginning
+to end unless a specific start date is specified with the
+.B -s
+option or a specific end date is specified with the
+.B -e
+option.  Alternatively, the
+.B -d
+option can be used to specify the number of days prior to the current
+date and time up to the current date and time to be summarized.
+.LP
+The summary is sent to standard output unless the
+.I mailout
+keyword is defined in the configuration file.
+.SH OPTIONS
+.TP
+.BI \-f file1[,file2[,...]]
+Specifies which file(s) to generate the summary from instead of the
+default set of files.  This is a comma separated list of files and the
+files will be analyzed in the order they are presented (order is
+important for accurate summary).
+.TP
+.BI \-c [conffile]
+Specifies an alternate configuration file.  By default, the
+configuration file
+.B /etc/socks5-stat.conf
+is used.  If a file name
+.I conffile
+appears after the
+.B -c
+option (no white space between option and file name), that file is
+used for the configuration file.  If the
+.B -c
+option appears alone, no configuration file will be used and only a
+minimal default summary will be output.
+.TP
+.BI \-m sendmail_path
+Specifies the full path and name of the sendmail program if different
+than the default.  The default path is
+.B /usr/lib/sendmail.
+.TP
+.BI \-s yymmdd
+Specifies a starting date in the form
+.I yymmdd
+of the log information to be included in the summary.  If this option
+is not present, summary will begin with the earliest date encountered
+or within a range if the
+.B -d
+option is specified.  The 
+.B -s
+option will override the
+.B -d 
+option if both are specified.
+.TP
+.BI \-e yymmdd
+Specifies an ending date in the form
+.I yymmdd
+of the log information to be included in the summary.  If this option
+is not present, summary will end with the current date and time or
+within a range if the
+.B -d
+option is specified.  The
+.B -e 
+option will override the
+.B -d
+option if both are specified.
+.TP
+.BI \-d days
+Specifies the number of
+.I days
+prior to the current date and time to start summarizing from the input
+files.  Summary will end with the current date and time.  Either the
+.B -s
+option or the
+.B -e
+option will override this option.
+.TP
+.BI -v
+Prints out the version number and exits.
+.SH EXAMPLES
+.RS
+.B socks5-stat
+.RE
+.LP
+Would create a summary for all socks5 data found in
+.B /var/adm/messages, 
+.B /var/adm/messages.0, 
+.B /var/adm/messages.1, ...
+.  The files would be analyzed oldest to newest.  The configuration
+file
+.B /etc/socks5-stat.conf
+would be used to determine what detailed summarization is to be done.
+.LP
+.RS
+.B socks5-stat\| -flog.2,log.1,log.0,log -s941101
+.RE
+.LP
+Would input the files 
+.Ilog.2, log.1, log.0, 
+and log (in that exact order) and would begin summarizing information
+starting with November 1st, 1994.
+.LP
+.RS
+.B socks5-stat\| -d1 -c/tmp/newconf
+.RE
+.LP
+Would read in data from the default log files and would begin
+summarizing from 1 day (24 hours) prior to the current date and time
+up to the current date and time.  The configuration file
+.I /tmp/newconf
+would be consulted to determine what detailed summarization is to be
+done.
+.LP
+The following line in the 
+.BR crontab
+file:
+.LP
+.RS
+0 1 * * * socks5-stat -d1
+.LP
+.RE
+would be invoked every morning at 1am and would create a summary of
+the previous 24 hours.
+.SH FILES
+.TP
+.BI /var/adm/messages*
+Default set of input log files.
+.TP
+.BI /etc/socks5-stat.conf
+Default configuration file.
+.SH "SEE ALSO"
+.BR socks5-stat.conf (5),
+.BR socks5 (8),
+.BR syslog (5)
+.SH BUGS
+.LP
+Connections that have starting information in one log file and
+terminating information in another log file might not show up in the
+summary.
+.LP
+UDP summaries could be better.
